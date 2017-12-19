@@ -1,9 +1,11 @@
 # from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from .models import Post #
-
+from .forms import EmailPostForm
+from django.core.mail import send_mail
+import os
 
 # def post_list(request):
   # # posts = Post.published.all()
@@ -52,7 +54,7 @@ def post_share(request, post_id):
         .format(cd['name'], cd['email'], post.title)
       message = 'Read "{}" at {}\n\n{}\'s comments: {}'\
         .format(post.title, post_url, cd['name'], cd['comments'])
-      send_mail(subject, message, 'admin@myblog.com', [cd['to']])
+      send_mail(subject, message, os.environ['EMAILUSER'], [cd['to']])
       sent = True
   else:
     form = EmailPostForm()
