@@ -2,8 +2,8 @@
 from django.shortcuts import render, get_object_or_404
 # from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
-from .models import Post #
-from .forms import EmailPostForm
+from .models import Post, Comment
+from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 import os
 
@@ -32,14 +32,28 @@ class PostListView(ListView):
   paginate_by = 3
   template_name = 'blog/post/list.html' # blog/post_list.html
 
-
 def post_detail(request, year, month, day, post):
   post = get_object_or_404(Post, slug=post,
                             status='published',
                             publish__year=year,
                             publish__month=month,
                             publish__day=day)
-  return render(request, 'blog/post/detail.html', {'post': post})
+  
+  comments = post.comments.filter(active=True)
+
+  if request.method=='POST':
+    comment_form = CommentForm(data=request.POST)
+
+    if comment_form.is_valid():
+      new_comment = comment_form.save(commit=False)
+      new_comment.post = post
+      new_comment.save()
+  else:
+    comment_form = CommentForm()
+
+  render_dict = {'post': post, 'comments': comments, 'comment_form': comment_form}
+
+  return render(request, 'blog/post/detail.html', render_dict)
 
 def post_share(request, post_id):
   post = get_object_or_404(Post, id=post_id, status='published')

@@ -6,6 +6,7 @@ tmp
 .DS_Store
 angular-phonecat-snapshots
 bower_components/
+migrations/
 
 # Swap
 [._]*.s[a-v][a-z]
