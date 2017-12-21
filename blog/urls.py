@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-
+from .feeds import LatestPostsFeed
 
 urlpatterns = [
   url(r'^$', views.post_list, name='post_list'),
@@ -15,5 +15,6 @@ urlpatterns = [
     views.post_share,
     name='post_share'),
   url(r'^(?P<post_id>\d+)/share/$', views.post_share, name='post_share'),
+  url(r'^feed/$', LatestPostsFeed(), name='post_feed'),
 ]
 
