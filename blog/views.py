@@ -1,27 +1,35 @@
 # from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
-# from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from .models import Post, Comment
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
+from taggit.models import Tag
 import os
 
-# def post_list(request):
-  # # posts = Post.published.all()
-  # object_list = Post.published.all()
-  # paginator = Paginator(object_list, 3) # 3 posts in each page
-  # page = request.GET.get('page')
-  # try:
-    # posts = paginator.page(page)
-  # except PageNotAnInteger:
-    # # If page is not an int, deliver the first page
-    # posts = paginator.page(1)
-  # except EmptyPage:
-    # # if page is out of range, deliver last page of results
-    # posts = paginator.page(paginator.num_pages)
- 
-  # return render(request, 'blog/post/list.html', {'page': page, 'posts': posts})
+def post_list(request, tag_slug=None):
+  # posts = Post.published.all()
+  object_list = Post.published.all()
+  tag = None
+
+  if tag_slug:
+    tag = get_object_or_404(Tag, slug=tag_slug)
+    object_list = object_list.filter(tags__in=[tag])
+
+  paginator = Paginator(object_list, 3) # 3 posts in each page
+  page = request.GET.get('page')
+  try:
+    posts = paginator.page(page)
+  except PageNotAnInteger:
+    # If page is not an int, deliver the first page
+    posts = paginator.page(1)
+  except EmptyPage:
+    # if page is out of range, deliver last page of results
+    posts = paginator.page(paginator.num_pages)
+
+  context_vars =  {'page': page, 'posts': posts, 'tag': tag }
+  return render(request, 'blog/post/list.html', context_vars )
 
 # TODO try using model=Post instead
 
